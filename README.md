@@ -59,8 +59,8 @@ A comprehensive medication reminder web application built with Node.js, Express,
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/yourusername/medicare-web-app.git
-cd medicare-web-app
+git clone https://github.com/Milan-1002/Medicare-App.git
+cd Medicare-App
 ```
 
 ### 2. Install Dependencies
@@ -281,8 +281,8 @@ git push heroku main
 ### Self-Hosted Deployment
 ```bash
 # On your server
-git clone https://github.com/yourusername/medicare-web-app.git
-cd medicare-web-app
+git clone https://github.com/Milan-1002/Medicare-App.git
+cd Medicare-App
 npm install --production
 npm start
 ```
@@ -337,8 +337,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 For support, questions, or feedback:
 - 📧 Email: support@medicare-app.com
-- 🐛 Bug Reports: [GitHub Issues](https://github.com/yourusername/medicare-web-app/issues)
-- 💡 Feature Requests: [GitHub Discussions](https://github.com/yourusername/medicare-web-app/discussions)
+- 🐛 Bug Reports: [GitHub Issues](https://github.com/Milan-1002/Medicare-App/issues)
+- 💡 Feature Requests: [GitHub Discussions](https://github.com/Milan-1002/Medicare-App/discussions)
 
 ## 🙏 Acknowledgments
 
