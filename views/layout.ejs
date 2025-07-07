@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- PWA manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Meta tags for mobile -->
+    <meta name="theme-color" content="#0066CC">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="MediCare">
+    
+    <!-- Open Graph meta tags -->
+    <meta property="og:title" content="MediCare - Medication Reminder">
+    <meta property="og:description" content="Never miss your medication with MediCare - your personal medication reminder app">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://medicare-app.com">
+    <meta property="og:image" content="/images/og-image.png">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-pills"></i>
+                </div>
+                <span>MediCare</span>
+            </div>
+            
+            <nav class="nav">
+                <a href="/" class="nav-link <%= page === 'home' ? 'active' : '' %>">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+                <a href="/dashboard" class="nav-link <%= page === 'dashboard' ? 'active' : '' %>">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/medicines" class="nav-link <%= page === 'medicines' ? 'active' : '' %>">
+                    <i class="fas fa-pills"></i>
+                    <span>Medicines</span>
+                </a>
+                <a href="/add-medicine" class="nav-link <%= page === 'add-medicine' ? 'active' : '' %>">
+                    <i class="fas fa-plus"></i>
+                    <span>Add Medicine</span>
+                </a>
+                <a href="/ai-assistant" class="nav-link <%= page === 'ai-assistant' ? 'active' : '' %>">
+                    <i class="fas fa-robot"></i>
+                    <span>AI Assistant</span>
+                </a>
+                <a href="/notifications" class="nav-link <%= page === 'notifications' ? 'active' : '' %>">
+                    <i class="fas fa-bell"></i>
+                    <span>Notifications</span>
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <%- body %>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <p>&copy; 2024 MediCare - Medication Reminder. All rights reserved.</p>
+                    <p class="mt-2">
+                        <strong>Disclaimer:</strong> This app is for informational purposes only. 
+                        Always consult your healthcare provider for medical advice.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="/js/app.js"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch(registrationError => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

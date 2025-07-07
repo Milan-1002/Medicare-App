@@ -1,0 +1,255 @@
+<%- include('layout', { body: `
+    <div class="card">
+        <div class="card-header">
+            <h1 class="card-title">
+                <i class="fas fa-sun"></i>
+                <span id="greeting">Good day</span>!
+            </h1>
+            <div class="current-time">
+                <i class="fas fa-clock"></i>
+                <span id="current-time"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="stats-grid" id="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-pills"></i>
+            </div>
+            <div class="stat-number" id="active-medicines">-</div>
+            <div class="stat-label">Active Medicines</div>
+        </div>
+        
+        <div class="stat-card green">
+            <div class="stat-icon">
+                <i class="fas fa-calendar-day"></i>
+            </div>
+            <div class="stat-number" id="today-medicines">-</div>
+            <div class="stat-label">Today's Medicines</div>
+        </div>
+        
+        <div class="stat-card orange">
+            <div class="stat-icon">
+                <i class="fas fa-bell"></i>
+            </div>
+            <div class="stat-number" id="today-reminders">-</div>
+            <div class="stat-label">Today's Reminders</div>
+        </div>
+        
+        <div class="stat-card purple">
+            <div class="stat-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-number" id="adherence-rate">-</div>
+            <div class="stat-label">Adherence Rate</div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-6">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-clock"></i>
+                        Today's Reminders
+                    </h2>
+                    <a href="/notifications" class="btn btn-outline btn-sm">
+                        <i class="fas fa-cog"></i>
+                        Settings
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div id="today-reminders-list">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-6">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-pills"></i>
+                        Active Medicines
+                    </h2>
+                    <a href="/medicines" class="btn btn-outline btn-sm">
+                        <i class="fas fa-list"></i>
+                        View All
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div id="active-medicines-list">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-chart-bar"></i>
+                        Quick Actions
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="nav-cards">
+                        <a href="/add-medicine" class="nav-card">
+                            <div class="nav-card-icon">
+                                <i class="fas fa-plus"></i>
+                            </div>
+                            <div class="nav-card-title">Add Medicine</div>
+                            <div class="nav-card-description">
+                                Add a new medication to your schedule
+                            </div>
+                        </a>
+                        
+                        <a href="/ai-assistant" class="nav-card">
+                            <div class="nav-card-icon">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="nav-card-title">Ask AI Assistant</div>
+                            <div class="nav-card-description">
+                                Get medication information and advice
+                            </div>
+                        </a>
+                        
+                        <a href="/notifications" class="nav-card">
+                            <div class="nav-card-icon">
+                                <i class="fas fa-bell"></i>
+                            </div>
+                            <div class="nav-card-title">Notification Test</div>
+                            <div class="nav-card-description">
+                                Test your notification settings
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Update time and greeting
+        function updateTimeAndGreeting() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+            const hour = now.getHours();
+            
+            document.getElementById('current-time').textContent = timeString;
+            
+            let greeting;
+            if (hour < 12) {
+                greeting = 'Good morning';
+            } else if (hour < 17) {
+                greeting = 'Good afternoon';
+            } else {
+                greeting = 'Good evening';
+            }
+            
+            document.getElementById('greeting').textContent = greeting;
+        }
+        
+        // Load dashboard data
+        async function loadDashboardData() {
+            try {
+                // Load statistics
+                const statsResponse = await fetch('/api/dashboard/stats');
+                const stats = await statsResponse.json();
+                
+                document.getElementById('active-medicines').textContent = stats.activeMedicines || 0;
+                document.getElementById('today-medicines').textContent = stats.activeMedicines || 0;
+                document.getElementById('today-reminders').textContent = stats.todayReminders || 0;
+                document.getElementById('adherence-rate').textContent = (stats.adherenceRate || 0) + '%';
+                
+                // Load today's reminders
+                const remindersResponse = await fetch('/api/dashboard/reminders/today');
+                const reminders = await remindersResponse.json();
+                
+                const remindersContainer = document.getElementById('today-reminders-list');
+                if (reminders.length === 0) {
+                    remindersContainer.innerHTML = '<p class="text-center text-muted">No reminders scheduled for today</p>';
+                } else {
+                    remindersContainer.innerHTML = reminders.map(reminder => `
+                        <div class="reminder-card \${reminder.isCompleted ? 'completed' : ''}">
+                            <div class="reminder-time">\${reminder.reminderTime}</div>
+                            <div class="reminder-medicine">
+                                <div class="reminder-medicine-name">\${reminder.name}</div>
+                                <div class="reminder-medicine-dosage">\${reminder.dosage} - \${reminder.type}</div>
+                            </div>
+                            <div class="reminder-actions">
+                                \${!reminder.isCompleted ? `
+                                    <button class="btn btn-success btn-sm" onclick="markReminderCompleted(\${reminder.id})">
+                                        <i class="fas fa-check"></i>
+                                        Done
+                                    </button>
+                                ` : `
+                                    <span class="badge badge-success">
+                                        <i class="fas fa-check"></i>
+                                        Completed
+                                    </span>
+                                `}
+                            </div>
+                        </div>
+                    `).join('');
+                }
+                
+                // Load active medicines
+                const medicinesResponse = await fetch('/api/medicines');
+                const medicines = await medicinesResponse.json();
+                
+                const medicinesContainer = document.getElementById('active-medicines-list');
+                if (medicines.length === 0) {
+                    medicinesContainer.innerHTML = '<p class="text-center text-muted">No active medicines</p>';
+                } else {
+                    medicinesContainer.innerHTML = medicines.slice(0, 3).map(medicine => `
+                        <div class="medicine-card">
+                            <div class="medicine-header">
+                                <div>
+                                    <div class="medicine-name">\${medicine.name}</div>
+                                    <div class="medicine-dosage">\${medicine.dosage} - \${medicine.type}</div>
+                                </div>
+                            </div>
+                            <div class="medicine-times">
+                                \${medicine.times.map(time => `<span class="time-badge">\${time}</span>`).join('')}
+                            </div>
+                        </div>
+                    `).join('');
+                }
+                
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+        
+        // Mark reminder as completed
+        async function markReminderCompleted(reminderId) {
+            try {
+                const response = await fetch(`/api/dashboard/reminders/\${reminderId}/complete`, {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    loadDashboardData(); // Reload data
+                } else {
+                    alert('Failed to mark reminder as completed');
+                }
+            } catch (error) {
+                console.error('Error marking reminder as completed:', error);
+                alert('Failed to mark reminder as completed');
+            }
+        }
+        
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            updateTimeAndGreeting();
+            setInterval(updateTimeAndGreeting, 1000);
+            loadDashboardData();
+        });
+    </script>
+` }) %>

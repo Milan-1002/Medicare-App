@@ -1,0 +1,118 @@
+<%- include('layout', { body: `
+    <div class="welcome-section">
+        <div class="welcome-title">Welcome to MediCare</div>
+        <div class="welcome-subtitle">Your personal medication reminder companion</div>
+    </div>
+
+    <div class="nav-cards">
+        <a href="/dashboard" class="nav-card">
+            <div class="nav-card-icon">
+                <i class="fas fa-tachometer-alt"></i>
+            </div>
+            <div class="nav-card-title">Dashboard</div>
+            <div class="nav-card-description">
+                View your medication statistics, today's reminders, and adherence tracking
+            </div>
+        </a>
+
+        <a href="/medicines" class="nav-card">
+            <div class="nav-card-icon">
+                <i class="fas fa-pills"></i>
+            </div>
+            <div class="nav-card-title">My Medicines</div>
+            <div class="nav-card-description">
+                Manage your current medications, view details, and track schedules
+            </div>
+        </a>
+
+        <a href="/add-medicine" class="nav-card">
+            <div class="nav-card-icon">
+                <i class="fas fa-plus-circle"></i>
+            </div>
+            <div class="nav-card-title">Add Medicine</div>
+            <div class="nav-card-description">
+                Add new medications with custom schedules and reminder times
+            </div>
+        </a>
+
+        <a href="/ai-assistant" class="nav-card">
+            <div class="nav-card-icon">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div class="nav-card-title">AI Assistant</div>
+            <div class="nav-card-description">
+                Get medication information and answers to your health questions
+            </div>
+        </a>
+
+        <a href="/notifications" class="nav-card">
+            <div class="nav-card-icon">
+                <i class="fas fa-bell"></i>
+            </div>
+            <div class="nav-card-title">Notifications</div>
+            <div class="nav-card-description">
+                Manage your reminder notifications and notification settings
+            </div>
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">
+                <i class="fas fa-info-circle"></i>
+                About MediCare
+            </h2>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-8">
+                    <p>
+                        MediCare is your reliable medication reminder companion, designed to help you 
+                        maintain consistent medication schedules and improve your health outcomes.
+                    </p>
+                    <h4 class="mt-4 mb-3">Key Features:</h4>
+                    <ul>
+                        <li><strong>Smart Reminders:</strong> Customizable medication schedules with precise timing</li>
+                        <li><strong>Comprehensive Tracking:</strong> Monitor your medication adherence and statistics</li>
+                        <li><strong>AI Assistant:</strong> Get instant answers to medication-related questions</li>
+                        <li><strong>Secure & Private:</strong> Your health data stays on your device</li>
+                        <li><strong>User-Friendly:</strong> Clean, medical-grade interface designed for ease of use</li>
+                    </ul>
+                </div>
+                <div class="col-4">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="stat-number">100%</div>
+                            <div class="stat-label">Secure</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-number">24/7</div>
+                            <div class="stat-label">Available</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <a href="/dashboard" class="btn btn-primary btn-lg">
+                <i class="fas fa-arrow-right"></i>
+                Get Started
+            </a>
+            <div class="text-right">
+                <small class="text-muted">Version 1.0.0</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert alert-info">
+        <strong>Medical Disclaimer:</strong> 
+        MediCare is designed to assist with medication management but should not replace professional medical advice. 
+        Always consult your healthcare provider for medical decisions and in case of emergencies.
+    </div>
+` }) %>

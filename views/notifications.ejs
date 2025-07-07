@@ -1,0 +1,391 @@
+<%- include('layout', { body: `
+    <div class="card">
+        <div class="card-header">
+            <h1 class="card-title">
+                <i class="fas fa-bell"></i>
+                Notifications
+            </h1>
+            <div class="notification-status">
+                <span id="notification-status" class="badge badge-secondary">Checking...</span>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="notification-settings">
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h3>Browser Notifications</h3>
+                        <p>Enable push notifications to receive medication reminders</p>
+                    </div>
+                    <div class="setting-actions">
+                        <button id="enable-notifications" class="btn btn-primary" onclick="enableNotifications()">
+                            <i class="fas fa-bell"></i>
+                            Enable Notifications
+                        </button>
+                        <button id="disable-notifications" class="btn btn-secondary" onclick="disableNotifications()" style="display: none;">
+                            <i class="fas fa-bell-slash"></i>
+                            Disable Notifications
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h3>Test Notifications</h3>
+                        <p>Send a test notification to verify your settings</p>
+                    </div>
+                    <div class="setting-actions">
+                        <button id="test-notification" class="btn btn-outline" onclick="sendTestNotification()">
+                            <i class="fas fa-vial"></i>
+                            Send Test Notification
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h3>Notification Schedule</h3>
+                        <p>Configure when you want to receive notifications</p>
+                    </div>
+                    <div class="setting-actions">
+                        <div class="time-settings">
+                            <label>Quiet Hours:</label>
+                            <input type="time" id="quiet-start" value="22:00">
+                            <span>to</span>
+                            <input type="time" id="quiet-end" value="07:00">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="notification-preview mt-5">
+                <h3>Upcoming Notifications</h3>
+                <div id="upcoming-notifications">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .notification-settings {
+            display: grid;
+            gap: var(--spacing-lg);
+        }
+        
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-lg);
+            border: 1px solid var(--light-gray);
+            border-radius: var(--radius-md);
+            background: var(--white);
+        }
+        
+        .setting-info h3 {
+            margin: 0 0 var(--spacing-sm) 0;
+            color: var(--primary-blue);
+        }
+        
+        .setting-info p {
+            margin: 0;
+            color: var(--gray);
+            font-size: var(--font-size-sm);
+        }
+        
+        .setting-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            align-items: center;
+        }
+        
+        .time-settings {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+        
+        .time-settings input {
+            padding: var(--spacing-sm);
+            border: 1px solid var(--light-gray);
+            border-radius: var(--radius-sm);
+        }
+        
+        .badge {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            font-weight: 500;
+        }
+        
+        .badge-success {
+            background: var(--accent-green);
+            color: white;
+        }
+        
+        .badge-warning {
+            background: var(--accent-orange);
+            color: white;
+        }
+        
+        .badge-secondary {
+            background: var(--gray);
+            color: white;
+        }
+        
+        .notification-preview {
+            border-top: 1px solid var(--light-gray);
+            padding-top: var(--spacing-lg);
+        }
+        
+        .upcoming-notification {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-md);
+            border: 1px solid var(--light-gray);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .notification-time {
+            font-weight: bold;
+            color: var(--primary-blue);
+        }
+        
+        .notification-medicine {
+            flex: 1;
+            margin-left: var(--spacing-md);
+        }
+        
+        .notification-medicine-name {
+            font-weight: 500;
+        }
+        
+        .notification-medicine-dosage {
+            color: var(--gray);
+            font-size: var(--font-size-sm);
+        }
+    </style>
+
+    <script>
+        // Check notification permission status
+        function checkNotificationStatus() {
+            if (!('Notification' in window)) {
+                document.getElementById('notification-status').textContent = 'Not Supported';
+                document.getElementById('notification-status').className = 'badge badge-secondary';
+                document.getElementById('enable-notifications').disabled = true;
+                return;
+            }
+            
+            const permission = Notification.permission;
+            const statusElement = document.getElementById('notification-status');
+            const enableBtn = document.getElementById('enable-notifications');
+            const disableBtn = document.getElementById('disable-notifications');
+            
+            switch (permission) {
+                case 'granted':
+                    statusElement.textContent = 'Enabled';
+                    statusElement.className = 'badge badge-success';
+                    enableBtn.style.display = 'none';
+                    disableBtn.style.display = 'inline-block';
+                    break;
+                case 'denied':
+                    statusElement.textContent = 'Denied';
+                    statusElement.className = 'badge badge-warning';
+                    enableBtn.textContent = 'Permission Denied';
+                    enableBtn.disabled = true;
+                    break;
+                default:
+                    statusElement.textContent = 'Disabled';
+                    statusElement.className = 'badge badge-secondary';
+                    enableBtn.style.display = 'inline-block';
+                    disableBtn.style.display = 'none';
+            }
+        }
+        
+        // Enable notifications
+        async function enableNotifications() {
+            if (!('Notification' in window)) {
+                alert('This browser does not support notifications');
+                return;
+            }
+            
+            try {
+                const permission = await Notification.requestPermission();
+                
+                if (permission === 'granted') {
+                    // Register for push notifications
+                    if ('serviceWorker' in navigator && 'PushManager' in window) {
+                        const registration = await navigator.serviceWorker.ready;
+                        
+                        // Subscribe to push notifications
+                        const subscription = await registration.pushManager.subscribe({
+                            userVisibleOnly: true,
+                            applicationServerKey: urlB64ToUint8Array(await getVapidPublicKey())
+                        });
+                        
+                        // Send subscription to server
+                        await fetch('/api/notifications/subscribe', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(subscription)
+                        });
+                    }
+                    
+                    showAlert('success', 'Notifications enabled successfully!');
+                } else {
+                    showAlert('warning', 'Notification permission denied');
+                }
+            } catch (error) {
+                console.error('Error enabling notifications:', error);
+                showAlert('danger', 'Failed to enable notifications');
+            }
+            
+            checkNotificationStatus();
+        }
+        
+        // Disable notifications
+        async function disableNotifications() {
+            if ('serviceWorker' in navigator && 'PushManager' in window) {
+                try {
+                    const registration = await navigator.serviceWorker.ready;
+                    const subscription = await registration.pushManager.getSubscription();
+                    
+                    if (subscription) {
+                        await subscription.unsubscribe();
+                    }
+                    
+                    showAlert('success', 'Notifications disabled');
+                } catch (error) {
+                    console.error('Error disabling notifications:', error);
+                    showAlert('danger', 'Failed to disable notifications');
+                }
+            }
+            
+            checkNotificationStatus();
+        }
+        
+        // Send test notification
+        async function sendTestNotification() {
+            try {
+                const response = await fetch('/api/notifications/test', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title: 'MediCare Test Notification',
+                        message: 'This is a test notification from MediCare'
+                    })
+                });
+                
+                if (response.ok) {
+                    // Also show browser notification directly
+                    if (Notification.permission === 'granted') {
+                        new Notification('MediCare Test Notification', {
+                            body: 'This is a test notification from MediCare',
+                            icon: '/images/pill-icon.png',
+                            badge: '/images/badge-icon.png'
+                        });
+                    }
+                    
+                    showAlert('success', 'Test notification sent!');
+                } else {
+                    showAlert('danger', 'Failed to send test notification');
+                }
+            } catch (error) {
+                console.error('Error sending test notification:', error);
+                showAlert('danger', 'Failed to send test notification');
+            }
+        }
+        
+        // Load upcoming notifications
+        async function loadUpcomingNotifications() {
+            try {
+                const response = await fetch('/api/dashboard/reminders/today');
+                const reminders = await response.json();
+                
+                const container = document.getElementById('upcoming-notifications');
+                
+                if (reminders.length === 0) {
+                    container.innerHTML = '<p class="text-center text-muted">No upcoming notifications for today</p>';
+                    return;
+                }
+                
+                container.innerHTML = reminders.map(reminder => `
+                    <div class="upcoming-notification">
+                        <div class="notification-time">\${reminder.reminderTime}</div>
+                        <div class="notification-medicine">
+                            <div class="notification-medicine-name">\${reminder.name}</div>
+                            <div class="notification-medicine-dosage">\${reminder.dosage} - \${reminder.type}</div>
+                        </div>
+                        <div class="notification-status">
+                            \${reminder.isCompleted ? 
+                                '<span class="badge badge-success">Completed</span>' : 
+                                '<span class="badge badge-warning">Pending</span>'
+                            }
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading upcoming notifications:', error);
+                document.getElementById('upcoming-notifications').innerHTML = 
+                    '<div class="alert alert-danger">Error loading notifications</div>';
+            }
+        }
+        
+        // Get VAPID public key
+        async function getVapidPublicKey() {
+            try {
+                const response = await fetch('/api/notifications/vapid-public-key');
+                const data = await response.json();
+                return data.publicKey;
+            } catch (error) {
+                console.error('Error getting VAPID public key:', error);
+                return null;
+            }
+        }
+        
+        // Convert VAPID key
+        function urlB64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding).replace(/\\-/g, '+').replace(/_/g, '/');
+            
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+            
+            for (let i = 0; i < rawData.length; ++i) {
+                outputArray[i] = rawData.charCodeAt(i);
+            }
+            
+            return outputArray;
+        }
+        
+        // Show alert
+        function showAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-\${type}`;
+            alertDiv.innerHTML = `
+                <i class="fas fa-\${type === 'danger' ? 'exclamation-circle' : 'check-circle'}"></i>
+                \${message}
+            `;
+            
+            const container = document.querySelector('.card-body');
+            container.insertBefore(alertDiv, container.firstChild);
+            
+            // Remove alert after 5 seconds
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            checkNotificationStatus();
+            loadUpcomingNotifications();
+        });
+    </script>
+` }) %>
