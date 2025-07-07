@@ -4,15 +4,22 @@ const webpush = require('web-push');
 
 // Configure web push (you'll need to generate VAPID keys)
 const vapidKeys = {
-  publicKey: 'YOUR_PUBLIC_VAPID_KEY_HERE',
-  privateKey: 'YOUR_PRIVATE_VAPID_KEY_HERE'
+  publicKey: process.env.VAPID_PUBLIC_KEY || 'YOUR_PUBLIC_VAPID_KEY_HERE',
+  privateKey: process.env.VAPID_PRIVATE_KEY || 'YOUR_PRIVATE_VAPID_KEY_HERE'
 };
 
-webpush.setVapidDetails(
-  'mailto:your-email@example.com',
-  vapidKeys.publicKey,
-  vapidKeys.privateKey
-);
+// Only set VAPID details if we have valid keys
+if (vapidKeys.publicKey !== 'YOUR_PUBLIC_VAPID_KEY_HERE' && vapidKeys.privateKey !== 'YOUR_PRIVATE_VAPID_KEY_HERE') {
+  try {
+    webpush.setVapidDetails(
+      'mailto:your-email@example.com',
+      vapidKeys.publicKey,
+      vapidKeys.privateKey
+    );
+  } catch (error) {
+    console.warn('VAPID configuration failed:', error.message);
+  }
+}
 
 // Store subscriptions (in production, use database)
 const subscriptions = [];
@@ -42,6 +49,13 @@ router.post('/send', (req, res) => {
       primaryKey: 1
     }
   };
+  
+  // Check if web-push is properly configured
+  if (vapidKeys.publicKey === 'YOUR_PUBLIC_VAPID_KEY_HERE') {
+    return res.status(400).json({ 
+      error: 'Web push notifications not configured. Please set up VAPID keys.' 
+    });
+  }
   
   const promises = subscriptions.map(subscription => {
     return webpush.sendNotification(subscription, JSON.stringify(notificationPayload))

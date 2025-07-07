@@ -1,407 +1,50 @@
-<%- include('layout', { body: `
-    <div class="card">
-        <div class="card-header">
-            <h1 class="card-title">
-                <i class="fas fa-robot"></i>
-                AI Assistant
-            </h1>
-            <div class="assistant-status">
-                <span class="badge badge-success">
-                    <i class="fas fa-circle"></i>
-                    Online
-                </span>
-            </div>
-        </div>
-        <div class="card-body">
-            <div class="chat-container">
-                <div class="chat-messages" id="chat-messages">
-                    <div class="message assistant-message">
-                        <div class="message-avatar">
-                            <i class="fas fa-robot"></i>
-                        </div>
-                        <div class="message-content">
-                            <div class="message-text">
-                                Hello! I'm your MediCare AI Assistant. I can help you with:
-                                <ul>
-                                    <li>Medication information and interactions</li>
-                                    <li>General health questions</li>
-                                    <li>Medication scheduling advice</li>
-                                    <li>Side effects and precautions</li>
-                                </ul>
-                                <strong>Please note:</strong> I provide information only and cannot replace professional medical advice. Always consult your healthcare provider for medical decisions.
-                            </div>
-                            <div class="message-time">\${new Date().toLocaleTimeString()}</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="chat-input-container">
-                    <div class="quick-questions">
-                        <button class="quick-question-btn" onclick="askQuickQuestion('What are the side effects of my current medications?')">
-                            Side effects of my medications
-                        </button>
-                        <button class="quick-question-btn" onclick="askQuickQuestion('How should I take my medicines with food?')">
-                            Taking medicines with food
-                        </button>
-                        <button class="quick-question-btn" onclick="askQuickQuestion('What should I do if I miss a dose?')">
-                            Missed dose guidance
-                        </button>
-                    </div>
-                    
-                    <div class="chat-input">
-                        <input type="text" id="message-input" placeholder="Type your question here..." class="form-control">
-                        <button id="send-button" class="btn btn-primary" onclick="sendMessage()">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="card">
+    <div class="card-header">
+        <h1 class="card-title">
+            <i class="fas fa-robot"></i>
+            AI Assistant
+        </h1>
+        <a href="/" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i>
+            Back to Home
+        </a>
     </div>
-
-    <div class="card mt-4">
-        <div class="card-header">
-            <h2 class="card-title">
-                <i class="fas fa-info-circle"></i>
-                Medical Disclaimer
-            </h2>
-        </div>
-        <div class="card-body">
-            <div class="alert alert-warning">
-                <strong>Important:</strong> This AI assistant is for informational purposes only and should not be used as a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition. Never disregard professional medical advice or delay in seeking it because of information received from this AI assistant.
+    <div class="card-body">
+        <form id="ai-assistant-form">
+            <div class="form-group">
+                <label for="ai-question" class="form-label">Ask a health or medication question:</label>
+                <textarea class="form-control form-textarea" id="ai-question" rows="3" placeholder="e.g., What are the side effects of aspirin?" required></textarea>
             </div>
-        </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-paper-plane"></i>
+                    Ask
+                </button>
+            </div>
+        </form>
+        <div id="ai-response" class="mt-4"></div>
     </div>
-
-    <style>
-        .chat-container {
-            display: flex;
-            flex-direction: column;
-            height: 600px;
-            border: 1px solid var(--light-gray);
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-        }
-        
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: var(--spacing-md);
-            background: var(--light-gray);
-        }
-        
-        .message {
-            display: flex;
-            gap: var(--spacing-sm);
-            margin-bottom: var(--spacing-lg);
-        }
-        
-        .message-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-        
-        .user-message .message-avatar {
-            background: var(--primary-blue);
-            color: white;
-        }
-        
-        .assistant-message .message-avatar {
-            background: var(--primary-cyan);
-            color: white;
-        }
-        
-        .message-content {
-            flex: 1;
-            background: white;
-            padding: var(--spacing-md);
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-light);
-        }
-        
-        .message-text {
-            margin-bottom: var(--spacing-sm);
-            line-height: 1.6;
-        }
-        
-        .message-text ul {
-            margin: var(--spacing-sm) 0;
-            padding-left: var(--spacing-lg);
-        }
-        
-        .message-time {
-            font-size: var(--font-size-xs);
-            color: var(--gray);
-            text-align: right;
-        }
-        
-        .chat-input-container {
-            padding: var(--spacing-md);
-            background: white;
-            border-top: 1px solid var(--light-gray);
-        }
-        
-        .quick-questions {
-            display: flex;
-            gap: var(--spacing-sm);
-            margin-bottom: var(--spacing-md);
-            flex-wrap: wrap;
-        }
-        
-        .quick-question-btn {
-            background: var(--secondary-blue);
-            color: var(--primary-blue);
-            border: none;
-            padding: var(--spacing-sm) var(--spacing-md);
-            border-radius: var(--radius-sm);
-            font-size: var(--font-size-sm);
-            cursor: pointer;
-            transition: var(--transition-normal);
-        }
-        
-        .quick-question-btn:hover {
-            background: var(--primary-blue);
-            color: white;
-        }
-        
-        .chat-input {
-            display: flex;
-            gap: var(--spacing-sm);
-        }
-        
-        .chat-input input {
-            flex: 1;
-        }
-        
-        .chat-input button {
-            padding: var(--spacing-md);
-        }
-        
-        .typing-indicator {
-            display: flex;
-            gap: var(--spacing-sm);
-            align-items: center;
-            color: var(--gray);
-            font-style: italic;
-        }
-        
-        .typing-dots {
-            display: flex;
-            gap: 2px;
-        }
-        
-        .typing-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: var(--gray);
-            animation: typing 1.4s infinite;
-        }
-        
-        .typing-dot:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-        
-        .typing-dot:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-        
-        @keyframes typing {
-            0%, 60%, 100% {
-                transform: translateY(0);
-                opacity: 0.4;
-            }
-            30% {
-                transform: translateY(-10px);
-                opacity: 1;
-            }
-        }
-        
-        .assistant-status {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-sm);
-        }
-    </style>
-
-    <script>
-        let currentMedicines = [];
-        
-        // Load user's current medicines for context
-        async function loadUserMedicines() {
-            try {
-                const response = await fetch('/api/medicines');
-                currentMedicines = await response.json();
-            } catch (error) {
-                console.error('Error loading medicines:', error);
-            }
-        }
-        
-        // Send message
-        async function sendMessage() {
-            const input = document.getElementById('message-input');
-            const message = input.value.trim();
-            
-            if (!message) return;
-            
-            // Add user message to chat
-            addMessageToChat('user', message);
-            
-            // Clear input
-            input.value = '';
-            
-            // Show typing indicator
-            showTypingIndicator();
-            
-            // Send message to AI
-            try {
-                const response = await getAIResponse(message);
-                hideTypingIndicator();
-                addMessageToChat('assistant', response);
-            } catch (error) {
-                hideTypingIndicator();
-                addMessageToChat('assistant', 'I apologize, but I encountered an error. Please try again later.');
-            }
-        }
-        
-        // Quick question
-        function askQuickQuestion(question) {
-            document.getElementById('message-input').value = question;
-            sendMessage();
-        }
-        
-        // Add message to chat
-        function addMessageToChat(sender, message) {
-            const chatMessages = document.getElementById('chat-messages');
-            const messageElement = document.createElement('div');
-            const currentTime = new Date().toLocaleTimeString();
-            
-            messageElement.className = `message \${sender}-message`;
-            messageElement.innerHTML = `
-                <div class="message-avatar">
-                    <i class="fas fa-\${sender === 'user' ? 'user' : 'robot'}"></i>
-                </div>
-                <div class="message-content">
-                    <div class="message-text">\${message}</div>
-                    <div class="message-time">\${currentTime}</div>
-                </div>
-            `;
-            
-            chatMessages.appendChild(messageElement);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-        
-        // Show typing indicator
-        function showTypingIndicator() {
-            const chatMessages = document.getElementById('chat-messages');
-            const typingElement = document.createElement('div');
-            
-            typingElement.className = 'message assistant-message typing-indicator';
-            typingElement.id = 'typing-indicator';
-            typingElement.innerHTML = `
-                <div class="message-avatar">
-                    <i class="fas fa-robot"></i>
-                </div>
-                <div class="message-content">
-                    <div class="typing-indicator">
-                        <span>Assistant is typing</span>
-                        <div class="typing-dots">
-                            <div class="typing-dot"></div>
-                            <div class="typing-dot"></div>
-                            <div class="typing-dot"></div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            chatMessages.appendChild(typingElement);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-        
-        // Hide typing indicator
-        function hideTypingIndicator() {
-            const typingIndicator = document.getElementById('typing-indicator');
-            if (typingIndicator) {
-                typingIndicator.remove();
-            }
-        }
-        
-        // Get AI response (mock implementation)
-        async function getAIResponse(message) {
-            // Simulate API delay
-            await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
-            
-            // Mock AI responses based on message content
-            const lowerMessage = message.toLowerCase();
-            
-            if (lowerMessage.includes('side effect')) {
-                return generateSideEffectsResponse();
-            } else if (lowerMessage.includes('food') || lowerMessage.includes('meal')) {
-                return generateFoodResponse();
-            } else if (lowerMessage.includes('miss') || lowerMessage.includes('forgot')) {
-                return generateMissedDoseResponse();
-            } else if (lowerMessage.includes('interaction')) {
-                return generateInteractionResponse();
-            } else if (lowerMessage.includes('dosage') || lowerMessage.includes('dose')) {
-                return generateDosageResponse();
+</div>
+<script>
+    document.getElementById('ai-assistant-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const question = document.getElementById('ai-question').value;
+        const responseDiv = document.getElementById('ai-response');
+        responseDiv.innerHTML = '<div class="spinner"></div>';
+        try {
+            const response = await fetch('/api/ai-assistant', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question })
+            });
+            const data = await response.json();
+            if (data.answer) {
+                responseDiv.innerHTML = `<div class="alert alert-info">${data.answer}</div>`;
             } else {
-                return generateGeneralResponse();
+                responseDiv.innerHTML = `<div class="alert alert-danger">Sorry, I could not answer your question.</div>`;
             }
+        } catch (error) {
+            responseDiv.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
         }
-        
-        // Generate context-aware responses
-        function generateSideEffectsResponse() {
-            if (currentMedicines.length === 0) {
-                return "I don't see any medicines in your current list. Common side effects vary by medication, but generally include nausea, drowsiness, or stomach upset. Please consult your pharmacist or healthcare provider for specific information about any medication you're taking.";
-            }
-            
-            const medicineNames = currentMedicines.map(med => med.name).join(', ');
-            return `Based on your current medicines (\${medicineNames}), here are some general considerations about side effects:\\n\\n• Monitor for any unusual symptoms\\n• Common side effects may include digestive issues, drowsiness, or changes in appetite\\n• Contact your healthcare provider if you experience severe or persistent side effects\\n• Keep a medication diary to track any reactions\\n\\n**Important:** This is general information only. Always consult your healthcare provider for specific advice about your medications.`;
-        }
-        
-        function generateFoodResponse() {
-            return "Here's general guidance about taking medicines with food:\\n\\n• **With food:** Many medications should be taken with meals to reduce stomach irritation\\n• **Empty stomach:** Some medicines work better when taken 1 hour before or 2 hours after meals\\n• **Avoid certain foods:** Some medications interact with specific foods (e.g., grapefruit juice)\\n• **Timing matters:** Try to take medications at the same time each day\\n\\n**Always check your medication labels and consult your pharmacist for specific instructions.**";
-        }
-        
-        function generateMissedDoseResponse() {
-            return "If you miss a dose, here's what to generally do:\\n\\n• **Take it as soon as you remember** if it's close to your usual time\\n• **Skip the missed dose** if it's almost time for your next dose\\n• **Never double up** on doses to make up for a missed one\\n• **Set reminders** to help prevent future missed doses\\n• **Contact your healthcare provider** if you frequently miss doses\\n\\n**Important:** Different medications have different rules for missed doses. Always follow your specific medication instructions or consult your pharmacist.";
-        }
-        
-        function generateInteractionResponse() {
-            return "Medication interactions are important to consider:\\n\\n• **Tell all healthcare providers** about every medication you take\\n• **Include supplements and vitamins** in your medication list\\n• **Use one pharmacy** when possible for better interaction monitoring\\n• **Check before adding new medications** including over-the-counter drugs\\n• **Watch for symptoms** like unusual side effects or reduced effectiveness\\n\\n**Always consult your pharmacist or healthcare provider before combining medications.**";
-        }
-        
-        function generateDosageResponse() {
-            return "Dosage information is crucial for medication safety:\\n\\n• **Follow prescribed amounts exactly** - don't adjust without consulting your doctor\\n• **Use proper measuring tools** for liquid medications\\n• **Check expiration dates** regularly\\n• **Store medications properly** to maintain effectiveness\\n• **Don't share medications** with others\\n\\n**Never change your dosage without consulting your healthcare provider first.**";
-        }
-        
-        function generateGeneralResponse() {
-            const responses = [
-                "Thank you for your question. For specific medical advice, I recommend consulting with your healthcare provider or pharmacist who can provide personalized guidance based on your individual health needs.",
-                "I'm here to provide general information about medications and health. For specific medical decisions, please consult with your doctor or pharmacist who knows your medical history.",
-                "That's a great question about your health. While I can provide general information, your healthcare provider is the best source for personalized medical advice.",
-                "I can help with general medication information. For specific concerns about your health or medications, please reach out to your healthcare provider.",
-                "Thank you for asking. For the most accurate and personalized advice, I recommend discussing this with your doctor or pharmacist."
-            ];
-            
-            return responses[Math.floor(Math.random() * responses.length)];
-        }
-        
-        // Handle Enter key in input
-        document.getElementById('message-input').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
-        
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            loadUserMedicines();
-        });
-    </script>
-` }) %>
+    });
+</script>

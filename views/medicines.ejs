@@ -1,307 +1,79 @@
-<%- include('layout', { body: `
-    <div class="card">
-        <div class="card-header">
-            <h1 class="card-title">
-                <i class="fas fa-pills"></i>
-                My Medicines
-            </h1>
-            <a href="/add-medicine" class="btn btn-primary">
-                <i class="fas fa-plus"></i>
-                Add Medicine
-            </a>
-        </div>
-        <div class="card-body">
-            <div class="search-filter mb-4">
-                <div class="row">
-                    <div class="col-6">
-                        <input type="text" class="form-control" id="search-medicines" placeholder="Search medicines...">
-                    </div>
-                    <div class="col-3">
-                        <select class="form-control form-select" id="filter-frequency">
-                            <option value="">All Frequencies</option>
-                            <option value="Once daily">Once daily</option>
-                            <option value="Twice daily">Twice daily</option>
-                            <option value="Three times daily">Three times daily</option>
-                            <option value="Four times daily">Four times daily</option>
-                        </select>
-                    </div>
-                    <div class="col-3">
-                        <select class="form-control form-select" id="filter-type">
-                            <option value="">All Types</option>
-                            <option value="Tablet">Tablet</option>
-                            <option value="Capsule">Capsule</option>
-                            <option value="Liquid">Liquid</option>
-                            <option value="Injection">Injection</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            
-            <div id="medicines-list">
-                <div class="spinner"></div>
-            </div>
+<div class="card">
+    <div class="card-header">
+        <h1 class="card-title">
+            <i class="fas fa-pills"></i>
+            My Medicines
+        </h1>
+        <a href="/add-medicine" class="btn btn-primary">
+            <i class="fas fa-plus"></i>
+            Add Medicine
+        </a>
+    </div>
+    <div class="card-body">
+        <div id="medicines-list">
+            <div class="spinner"></div>
         </div>
     </div>
-
-    <!-- Medicine Details Modal -->
-    <div id="medicine-modal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Medicine Details</h2>
-                <button class="btn btn-secondary" onclick="closeMedicineModal()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body" id="medicine-details">
-                <!-- Medicine details will be populated here -->
-            </div>
-        </div>
-    </div>
-
-    <style>
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-        
-        .modal-content {
-            background: white;
-            border-radius: var(--radius-lg);
-            max-width: 600px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        
-        .modal-header {
-            padding: var(--spacing-lg);
-            border-bottom: 1px solid var(--light-gray);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .modal-title {
-            margin: 0;
-            color: var(--primary-blue);
-        }
-        
-        .modal-body {
-            padding: var(--spacing-lg);
-        }
-        
-        .search-filter {
-            background: var(--light-gray);
-            padding: var(--spacing-lg);
-            border-radius: var(--radius-lg);
-        }
-    </style>
-
-    <script>
-        let allMedicines = [];
-        let filteredMedicines = [];
-        
-        // Load medicines
-        async function loadMedicines() {
-            try {
-                const response = await fetch('/api/medicines');
-                allMedicines = await response.json();
-                filteredMedicines = [...allMedicines];
-                displayMedicines();
-            } catch (error) {
-                console.error('Error loading medicines:', error);
-                document.getElementById('medicines-list').innerHTML = 
-                    '<div class="alert alert-danger">Error loading medicines</div>';
+</div>
+<script>
+    async function loadMedicines() {
+        const container = document.getElementById('medicines-list');
+        container.innerHTML = '<div class="spinner"></div>';
+        try {
+            const response = await fetch('/api/medicines');
+            const medicines = await response.json();
+            if (medicines.length === 0) {
+                container.innerHTML = '<p class="text-center text-muted">No medicines found.</p>';
+            } else {
+                container.innerHTML = medicines.map(med => `
+                    <div class="medicine-card">
+                        <div class="medicine-header">
+                            <div>
+                                <div class="medicine-name">${med.name}</div>
+                                <div class="medicine-dosage">${med.dosage} - ${med.type}</div>
+                            </div>
+                            <div class="medicine-actions">
+                                <button class="btn btn-danger btn-sm" onclick="deleteMedicine(${med.id})">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                        <div class="medicine-details">
+                            <div class="medicine-detail">
+                                <i class="fas fa-clock"></i>
+                                <span>${med.frequency}</span>
+                            </div>
+                            <div class="medicine-detail">
+                                <i class="fas fa-calendar"></i>
+                                <span>Started: ${new Date(med.startDate).toLocaleDateString()}</span>
+                            </div>
+                        </div>
+                        <div class="medicine-times">
+                            ${(med.times || []).map(time => `<span class="time-badge">${time}</span>`).join(' ')}
+                        </div>
+                        <div class="medicine-detail mt-2">
+                            <i class="fas fa-sticky-note"></i>
+                            <span>${med.notes || ''}</span>
+                        </div>
+                    </div>
+                `).join('');
             }
+        } catch (error) {
+            container.innerHTML = '<div class="alert alert-danger">Failed to load medicines.</div>';
         }
-        
-        // Display medicines
-        function displayMedicines() {
-            const container = document.getElementById('medicines-list');
-            
-            if (filteredMedicines.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center mt-5">
-                        <i class="fas fa-pills" style="font-size: 3rem; color: var(--gray); margin-bottom: 1rem;"></i>
-                        <h3>No medicines found</h3>
-                        <p class="text-muted">Add your first medicine to get started</p>
-                        <a href="/add-medicine" class="btn btn-primary mt-3">
-                            <i class="fas fa-plus"></i>
-                            Add Medicine
-                        </a>
-                    </div>
-                `;
-                return;
-            }
-            
-            container.innerHTML = filteredMedicines.map(medicine => `
-                <div class="medicine-card" data-medicine-id="\${medicine.id}">
-                    <div class="medicine-header">
-                        <div>
-                            <div class="medicine-name">\${medicine.name}</div>
-                            <div class="medicine-dosage">\${medicine.dosage} - \${medicine.type}</div>
-                        </div>
-                        <div class="medicine-actions">
-                            <button class="btn btn-outline btn-sm" onclick="viewMedicine(\${medicine.id})">
-                                <i class="fas fa-eye"></i>
-                                View
-                            </button>
-                            <button class="btn btn-danger btn-sm" onclick="deleteMedicine(\${medicine.id})">
-                                <i class="fas fa-trash"></i>
-                                Delete
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="medicine-details">
-                        <div class="medicine-detail">
-                            <i class="fas fa-calendar"></i>
-                            <span>\${medicine.frequency}</span>
-                        </div>
-                        <div class="medicine-detail">
-                            <i class="fas fa-calendar-alt"></i>
-                            <span>\${medicine.startDate} - \${medicine.endDate || 'Ongoing'}</span>
-                        </div>
-                        <div class="medicine-detail">
-                            <i class="fas fa-clock"></i>
-                            <span>\${medicine.times.length} reminder(s)</span>
-                        </div>
-                    </div>
-                    
-                    <div class="medicine-times">
-                        \${medicine.times.map(time => `<span class="time-badge">\${time}</span>`).join('')}
-                    </div>
-                    
-                    \${medicine.notes ? `
-                        <div class="medicine-notes mt-3">
-                            <strong>Notes:</strong> \${medicine.notes}
-                        </div>
-                    ` : ''}
-                </div>
-            `).join('');
-        }
-        
-        // Filter medicines
-        function filterMedicines() {
-            const searchTerm = document.getElementById('search-medicines').value.toLowerCase();
-            const frequencyFilter = document.getElementById('filter-frequency').value;
-            const typeFilter = document.getElementById('filter-type').value;
-            
-            filteredMedicines = allMedicines.filter(medicine => {
-                const matchesSearch = medicine.name.toLowerCase().includes(searchTerm) ||
-                                    medicine.dosage.toLowerCase().includes(searchTerm);
-                const matchesFrequency = !frequencyFilter || medicine.frequency === frequencyFilter;
-                const matchesType = !typeFilter || medicine.type === typeFilter;
-                
-                return matchesSearch && matchesFrequency && matchesType;
-            });
-            
-            displayMedicines();
-        }
-        
-        // View medicine details
-        async function viewMedicine(medicineId) {
-            try {
-                const response = await fetch(`/api/medicines/\${medicineId}`);
-                const medicine = await response.json();
-                
-                document.getElementById('medicine-details').innerHTML = `
-                    <div class="medicine-detail-view">
-                        <h3>\${medicine.name}</h3>
-                        <div class="detail-grid">
-                            <div class="detail-item">
-                                <label>Dosage:</label>
-                                <span>\${medicine.dosage}</span>
-                            </div>
-                            <div class="detail-item">
-                                <label>Type:</label>
-                                <span>\${medicine.type}</span>
-                            </div>
-                            <div class="detail-item">
-                                <label>Frequency:</label>
-                                <span>\${medicine.frequency}</span>
-                            </div>
-                            <div class="detail-item">
-                                <label>Start Date:</label>
-                                <span>\${medicine.startDate}</span>
-                            </div>
-                            <div class="detail-item">
-                                <label>End Date:</label>
-                                <span>\${medicine.endDate || 'Ongoing'}</span>
-                            </div>
-                            <div class="detail-item">
-                                <label>Reminder Times:</label>
-                                <div class="times-list">
-                                    \${medicine.times.map(time => `<span class="time-badge">\${time}</span>`).join('')}
-                                </div>
-                            </div>
-                            \${medicine.notes ? `
-                                <div class="detail-item full-width">
-                                    <label>Notes:</label>
-                                    <p>\${medicine.notes}</p>
-                                </div>
-                            ` : ''}
-                        </div>
-                    </div>
-                `;
-                
-                document.getElementById('medicine-modal').style.display = 'flex';
-            } catch (error) {
-                console.error('Error loading medicine details:', error);
-                alert('Error loading medicine details');
-            }
-        }
-        
-        // Close medicine modal
-        function closeMedicineModal() {
-            document.getElementById('medicine-modal').style.display = 'none';
-        }
-        
-        // Delete medicine
-        async function deleteMedicine(medicineId) {
-            if (!confirm('Are you sure you want to delete this medicine?')) {
-                return;
-            }
-            
-            try {
-                const response = await fetch(`/api/medicines/\${medicineId}`, {
-                    method: 'DELETE'
-                });
-                
-                if (response.ok) {
-                    loadMedicines(); // Reload medicines
-                } else {
-                    alert('Failed to delete medicine');
-                }
-            } catch (error) {
-                console.error('Error deleting medicine:', error);
+    }
+    async function deleteMedicine(id) {
+        if (!confirm('Are you sure you want to delete this medicine?')) return;
+        try {
+            const response = await fetch(`/api/medicines/${id}`, { method: 'DELETE' });
+            if (response.ok) {
+                loadMedicines();
+            } else {
                 alert('Failed to delete medicine');
             }
+        } catch (error) {
+            alert('Failed to delete medicine');
         }
-        
-        // Initialize page
-        document.addEventListener('DOMContentLoaded', () => {
-            loadMedicines();
-            
-            // Add event listeners for filters
-            document.getElementById('search-medicines').addEventListener('input', filterMedicines);
-            document.getElementById('filter-frequency').addEventListener('change', filterMedicines);
-            document.getElementById('filter-type').addEventListener('change', filterMedicines);
-            
-            // Close modal when clicking outside
-            document.getElementById('medicine-modal').addEventListener('click', (e) => {
-                if (e.target.id === 'medicine-modal') {
-                    closeMedicineModal();
-                }
-            });
-        });
-    </script>
-` }) %>
+    }
+    document.addEventListener('DOMContentLoaded', loadMedicines);
+</script>

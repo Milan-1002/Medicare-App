@@ -1,316 +1,314 @@
-<%- include('layout', { body: `
-    <div class="card">
-        <div class="card-header">
-            <h1 class="card-title">
-                <i class="fas fa-plus-circle"></i>
-                Add New Medicine
-            </h1>
-            <a href="/medicines" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i>
-                Back to Medicines
-            </a>
-        </div>
-        <div class="card-body">
-            <form id="add-medicine-form">
-                <div class="row">
-                    <div class="col-6">
-                        <div class="form-group">
-                            <label for="medicine-name" class="form-label">Medicine Name *</label>
-                            <input type="text" class="form-control" id="medicine-name" required>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="form-group">
-                            <label for="medicine-dosage" class="form-label">Dosage *</label>
-                            <input type="text" class="form-control" id="medicine-dosage" placeholder="e.g., 500mg, 1 tablet" required>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="row">
-                    <div class="col-6">
-                        <div class="form-group">
-                            <label for="medicine-frequency" class="form-label">Frequency *</label>
-                            <select class="form-control form-select" id="medicine-frequency" required>
-                                <option value="">Select frequency</option>
-                                <option value="Once daily">Once daily</option>
-                                <option value="Twice daily">Twice daily</option>
-                                <option value="Three times daily">Three times daily</option>
-                                <option value="Four times daily">Four times daily</option>
-                                <option value="Every other day">Every other day</option>
-                                <option value="Weekly">Weekly</option>
-                                <option value="As needed">As needed</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="form-group">
-                            <label for="medicine-type" class="form-label">Medicine Type *</label>
-                            <select class="form-control form-select" id="medicine-type" required>
-                                <option value="">Select type</option>
-                                <option value="Tablet">Tablet</option>
-                                <option value="Capsule">Capsule</option>
-                                <option value="Liquid">Liquid</option>
-                                <option value="Injection">Injection</option>
-                                <option value="Inhaler">Inhaler</option>
-                                <option value="Cream/Ointment">Cream/Ointment</option>
-                                <option value="Drops">Drops</option>
-                                <option value="Patch">Patch</option>
-                                <option value="Softgel">Softgel</option>
-                                <option value="Powder">Powder</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Reminder Times *</label>
-                    <div class="reminder-times-section">
-                        <div class="reminder-times-header">
-                            <span>Current times: <span id="times-count">0</span></span>
-                            <button type="button" class="btn btn-outline btn-sm" onclick="addReminderTime()">
-                                <i class="fas fa-plus"></i>
-                                Add Time
-                            </button>
-                        </div>
-                        <div id="reminder-times-list" class="reminder-times-list">
-                            <!-- Reminder times will be added here -->
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="row">
-                    <div class="col-6">
-                        <div class="form-group">
-                            <label for="start-date" class="form-label">Start Date *</label>
-                            <input type="date" class="form-control" id="start-date" required>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="form-group">
-                            <label for="end-date" class="form-label">End Date (Optional)</label>
-                            <input type="date" class="form-control" id="end-date">
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="medicine-notes" class="form-label">Notes (Optional)</label>
-                    <textarea class="form-control form-textarea" id="medicine-notes" rows="3" placeholder="Any additional notes about this medicine..."></textarea>
-                </div>
-                
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary btn-lg">
-                        <i class="fas fa-save"></i>
-                        Save Medicine
-                    </button>
-                    <button type="button" class="btn btn-secondary btn-lg" onclick="resetForm()">
-                        <i class="fas fa-undo"></i>
-                        Reset Form
-                    </button>
-                </div>
-            </form>
-        </div>
+<div class="card">
+    <div class="card-header">
+        <h1 class="card-title">
+            <i class="fas fa-plus-circle"></i>
+            Add New Medicine
+        </h1>
+        <a href="/medicines" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i>
+            Back to Medicines
+        </a>
     </div>
-
-    <style>
-        .reminder-times-section {
-            border: 2px solid var(--light-gray);
-            border-radius: var(--radius-md);
-            padding: var(--spacing-md);
-            background: var(--light-gray);
-        }
-        
-        .reminder-times-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: var(--spacing-md);
-        }
-        
-        .reminder-times-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: var(--spacing-sm);
-        }
-        
-        .reminder-time-item {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-sm);
-            background: var(--white);
-            padding: var(--spacing-sm);
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--gray);
-        }
-        
-        .reminder-time-item input {
-            flex: 1;
-            border: none;
-            background: transparent;
-            font-size: var(--font-size-sm);
-        }
-        
-        .reminder-time-item input:focus {
-            outline: none;
-        }
-        
-        .form-actions {
-            display: flex;
-            gap: var(--spacing-md);
-            justify-content: center;
-            margin-top: var(--spacing-xl);
-            padding-top: var(--spacing-xl);
-            border-top: 1px solid var(--light-gray);
-        }
-        
-        .alert {
-            margin-top: var(--spacing-md);
-        }
-    </style>
-
-    <script>
-        let reminderTimes = [];
-        
-        // Default times based on frequency
-        const defaultTimes = {
-            'Once daily': ['08:00'],
-            'Twice daily': ['08:00', '20:00'],
-            'Three times daily': ['08:00', '14:00', '20:00'],
-            'Four times daily': ['08:00', '12:00', '16:00', '20:00'],
-            'Every other day': ['08:00'],
-            'Weekly': ['08:00'],
-            'As needed': []
-        };
-        
-        // Initialize form
-        function initializeForm() {
-            // Set default start date to today
-            document.getElementById('start-date').value = new Date().toISOString().split('T')[0];
-            
-            // Add frequency change listener
-            document.getElementById('medicine-frequency').addEventListener('change', function() {
-                const frequency = this.value;
-                if (frequency && defaultTimes[frequency]) {
-                    reminderTimes = [...defaultTimes[frequency]];
-                    updateReminderTimesDisplay();
-                }
-            });
-        }
-        
-        // Add reminder time
-        function addReminderTime() {
-            const newTime = '08:00';
-            reminderTimes.push(newTime);
-            updateReminderTimesDisplay();
-        }
-        
-        // Remove reminder time
-        function removeReminderTime(index) {
-            reminderTimes.splice(index, 1);
-            updateReminderTimesDisplay();
-        }
-        
-        // Update reminder time
-        function updateReminderTime(index, newTime) {
-            reminderTimes[index] = newTime;
-            updateTimesCount();
-        }
-        
-        // Update reminder times display
-        function updateReminderTimesDisplay() {
-            const container = document.getElementById('reminder-times-list');
-            
-            container.innerHTML = reminderTimes.map((time, index) => `
-                <div class="reminder-time-item">
-                    <input type="time" value="\${time}" onchange="updateReminderTime(\${index}, this.value)">
-                    <button type="button" class="btn btn-danger btn-sm" onclick="removeReminderTime(\${index})">
-                        <i class="fas fa-times"></i>
-                    </button>
+    <div class="card-body">
+        <form id="add-medicine-form">
+            <div class="row">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label for="medicine-name" class="form-label">Medicine Name *</label>
+                        <input type="text" class="form-control" id="medicine-name" required>
+                    </div>
                 </div>
-            `).join('');
+                <div class="col-6">
+                    <div class="form-group">
+                        <label for="medicine-dosage" class="form-label">Dosage *</label>
+                        <input type="text" class="form-control" id="medicine-dosage" placeholder="e.g., 500mg, 1 tablet" required>
+                    </div>
+                </div>
+            </div>
             
-            updateTimesCount();
-        }
+            <div class="row">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label for="medicine-frequency" class="form-label">Frequency *</label>
+                        <select class="form-control form-select" id="medicine-frequency" required>
+                            <option value="">Select frequency</option>
+                            <option value="Once daily">Once daily</option>
+                            <option value="Twice daily">Twice daily</option>
+                            <option value="Three times daily">Three times daily</option>
+                            <option value="Four times daily">Four times daily</option>
+                            <option value="Every other day">Every other day</option>
+                            <option value="Weekly">Weekly</option>
+                            <option value="As needed">As needed</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label for="medicine-type" class="form-label">Medicine Type *</label>
+                        <select class="form-control form-select" id="medicine-type" required>
+                            <option value="">Select type</option>
+                            <option value="Tablet">Tablet</option>
+                            <option value="Capsule">Capsule</option>
+                            <option value="Liquid">Liquid</option>
+                            <option value="Injection">Injection</option>
+                            <option value="Inhaler">Inhaler</option>
+                            <option value="Cream/Ointment">Cream/Ointment</option>
+                            <option value="Drops">Drops</option>
+                            <option value="Patch">Patch</option>
+                            <option value="Softgel">Softgel</option>
+                            <option value="Powder">Powder</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Reminder Times *</label>
+                <div class="reminder-times-section">
+                    <div class="reminder-times-header">
+                        <span>Current times: <span id="times-count">0</span></span>
+                        <button type="button" class="btn btn-outline btn-sm" onclick="addReminderTime()">
+                            <i class="fas fa-plus"></i>
+                            Add Time
+                        </button>
+                    </div>
+                    <div id="reminder-times-list" class="reminder-times-list">
+                        <!-- Reminder times will be added here -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label for="start-date" class="form-label">Start Date *</label>
+                        <input type="date" class="form-control" id="start-date" required>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label for="end-date" class="form-label">End Date (Optional)</label>
+                        <input type="date" class="form-control" id="end-date">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="medicine-notes" class="form-label">Notes (Optional)</label>
+                <textarea class="form-control form-textarea" id="medicine-notes" rows="3" placeholder="Any additional notes about this medicine..."></textarea>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-save"></i>
+                    Save Medicine
+                </button>
+                <button type="button" class="btn btn-secondary btn-lg" onclick="resetForm()">
+                    <i class="fas fa-undo"></i>
+                    Reset Form
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .reminder-times-section {
+        border: 2px solid var(--light-gray);
+        border-radius: var(--radius-md);
+        padding: var(--spacing-md);
+        background: var(--light-gray);
+    }
+    
+    .reminder-times-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .reminder-times-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: var(--spacing-sm);
+    }
+    
+    .reminder-time-item {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+        background: var(--white);
+        padding: var(--spacing-sm);
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--gray);
+    }
+    
+    .reminder-time-item input {
+        flex: 1;
+        border: none;
+        background: transparent;
+        font-size: var(--font-size-sm);
+    }
+    
+    .reminder-time-item input:focus {
+        outline: none;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: var(--spacing-md);
+        justify-content: center;
+        margin-top: var(--spacing-xl);
+        padding-top: var(--spacing-xl);
+        border-top: 1px solid var(--light-gray);
+    }
+    
+    .alert {
+        margin-top: var(--spacing-md);
+    }
+</style>
+
+<script>
+    let reminderTimes = [];
+    
+    // Default times based on frequency
+    const defaultTimes = {
+        'Once daily': ['08:00'],
+        'Twice daily': ['08:00', '20:00'],
+        'Three times daily': ['08:00', '14:00', '20:00'],
+        'Four times daily': ['08:00', '12:00', '16:00', '20:00'],
+        'Every other day': ['08:00'],
+        'Weekly': ['08:00'],
+        'As needed': []
+    };
+    
+    // Initialize form
+    function initializeForm() {
+        // Set default start date to today
+        document.getElementById('start-date').value = new Date().toISOString().split('T')[0];
         
-        // Update times count
-        function updateTimesCount() {
-            document.getElementById('times-count').textContent = reminderTimes.length;
-        }
-        
-        // Reset form
-        function resetForm() {
-            if (confirm('Are you sure you want to reset the form? All data will be lost.')) {
-                document.getElementById('add-medicine-form').reset();
-                reminderTimes = [];
+        // Add frequency change listener
+        document.getElementById('medicine-frequency').addEventListener('change', function() {
+            const frequency = this.value;
+            if (frequency && defaultTimes[frequency]) {
+                reminderTimes = [...defaultTimes[frequency]];
                 updateReminderTimesDisplay();
-                document.getElementById('start-date').value = new Date().toISOString().split('T')[0];
-            }
-        }
-        
-        // Form submission
-        document.getElementById('add-medicine-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            // Validate reminder times
-            if (reminderTimes.length === 0) {
-                alert('Please add at least one reminder time');
-                return;
-            }
-            
-            // Collect form data
-            const formData = {
-                name: document.getElementById('medicine-name').value,
-                dosage: document.getElementById('medicine-dosage').value,
-                frequency: document.getElementById('medicine-frequency').value,
-                type: document.getElementById('medicine-type').value,
-                times: reminderTimes,
-                startDate: document.getElementById('start-date').value,
-                endDate: document.getElementById('end-date').value || null,
-                notes: document.getElementById('medicine-notes').value || null
-            };
-            
-            try {
-                const response = await fetch('/api/medicines', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                });
-                
-                if (response.ok) {
-                    // Success - redirect to medicines page
-                    window.location.href = '/medicines';
-                } else {
-                    const error = await response.json();
-                    showAlert('danger', error.errors ? error.errors.join(', ') : 'Failed to add medicine');
-                }
-            } catch (error) {
-                console.error('Error adding medicine:', error);
-                showAlert('danger', 'Failed to add medicine');
             }
         });
+    }
+    
+    // Add reminder time
+    function addReminderTime() {
+        const newTime = '08:00';
+        reminderTimes.push(newTime);
+        updateReminderTimesDisplay();
+    }
+    
+    // Remove reminder time
+    function removeReminderTime(index) {
+        reminderTimes.splice(index, 1);
+        updateReminderTimesDisplay();
+    }
+    
+    // Update reminder time
+    function updateReminderTime(index, newTime) {
+        reminderTimes[index] = newTime;
+        updateTimesCount();
+    }
+    
+    // Update reminder times display
+    function updateReminderTimesDisplay() {
+        const container = document.getElementById('reminder-times-list');
         
-        // Show alert
-        function showAlert(type, message) {
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `alert alert-\${type}`;
-            alertDiv.innerHTML = `
-                <i class="fas fa-\${type === 'danger' ? 'exclamation-circle' : 'check-circle'}"></i>
-                \${message}
-            `;
-            
-            const form = document.getElementById('add-medicine-form');
-            form.insertBefore(alertDiv, form.firstChild);
-            
-            // Remove alert after 5 seconds
-            setTimeout(() => {
-                alertDiv.remove();
-            }, 5000);
+        container.innerHTML = reminderTimes.map((time, index) => `
+            <div class="reminder-time-item">
+                <input type="time" value="\${time}" onchange="updateReminderTime(\${index}, this.value)">
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeReminderTime(\${index})">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `).join('');
+        
+        updateTimesCount();
+    }
+    
+    // Update times count
+    function updateTimesCount() {
+        document.getElementById('times-count').textContent = reminderTimes.length;
+    }
+    
+    // Reset form
+    function resetForm() {
+        if (confirm('Are you sure you want to reset the form? All data will be lost.')) {
+            document.getElementById('add-medicine-form').reset();
+            reminderTimes = [];
+            updateReminderTimesDisplay();
+            document.getElementById('start-date').value = new Date().toISOString().split('T')[0];
+        }
+    }
+    
+    // Form submission
+    document.getElementById('add-medicine-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Validate reminder times
+        if (reminderTimes.length === 0) {
+            alert('Please add at least one reminder time');
+            return;
         }
         
-        // Initialize when page loads
-        document.addEventListener('DOMContentLoaded', initializeForm);
-    </script>
-` }) %>
+        // Collect form data
+        const formData = {
+            name: document.getElementById('medicine-name').value,
+            dosage: document.getElementById('medicine-dosage').value,
+            frequency: document.getElementById('medicine-frequency').value,
+            type: document.getElementById('medicine-type').value,
+            times: reminderTimes,
+            startDate: document.getElementById('start-date').value,
+            endDate: document.getElementById('end-date').value || null,
+            notes: document.getElementById('medicine-notes').value || null
+        };
+        
+        try {
+            const response = await fetch('/api/medicines', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+            
+            if (response.ok) {
+                // Success - redirect to medicines page
+                window.location.href = '/medicines';
+            } else {
+                const error = await response.json();
+                showAlert('danger', error.errors ? error.errors.join(', ') : 'Failed to add medicine');
+            }
+        } catch (error) {
+            console.error('Error adding medicine:', error);
+            showAlert('danger', 'Failed to add medicine');
+        }
+    });
+    
+    // Show alert
+    function showAlert(type, message) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-\${type}`;
+        alertDiv.innerHTML = `
+            <i class="fas fa-\${type === 'danger' ? 'exclamation-circle' : 'check-circle'}"></i>
+            \${message}
+        `;
+        
+        const form = document.getElementById('add-medicine-form');
+        form.insertBefore(alertDiv, form.firstChild);
+        
+        // Remove alert after 5 seconds
+        setTimeout(() => {
+            alertDiv.remove();
+        }, 5000);
+    }
+    
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', initializeForm);
+</script>

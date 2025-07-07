@@ -7,11 +7,12 @@ class Database {
   }
 
   init() {
-    this.createTables();
-    this.insertSampleData();
+    this.createTables(() => {
+      this.insertSampleData();
+    });
   }
 
-  createTables() {
+  createTables(callback) {
     const createMedicinesTable = `
       CREATE TABLE IF NOT EXISTS medicines (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -55,9 +56,31 @@ class Database {
       )
     `;
 
-    this.db.run(createMedicinesTable);
-    this.db.run(createRemindersTable);
-    this.db.run(createNotificationsTable);
+    let tablesCreated = 0;
+    const totalTables = 3;
+
+    const checkComplete = () => {
+      tablesCreated++;
+      if (tablesCreated === totalTables) {
+        console.log('Database tables created successfully');
+        if (callback) callback();
+      }
+    };
+
+    this.db.run(createMedicinesTable, (err) => {
+      if (err) console.error('Error creating medicines table:', err);
+      checkComplete();
+    });
+    
+    this.db.run(createRemindersTable, (err) => {
+      if (err) console.error('Error creating reminders table:', err);
+      checkComplete();
+    });
+    
+    this.db.run(createNotificationsTable, (err) => {
+      if (err) console.error('Error creating notifications table:', err);
+      checkComplete();
+    });
   }
 
   insertSampleData() {
@@ -108,6 +131,9 @@ class Database {
           VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
+        let inserted = 0;
+        const total = sampleMedicines.length;
+
         sampleMedicines.forEach(medicine => {
           this.db.run(insertMedicine, [
             medicine.name,
@@ -118,10 +144,16 @@ class Database {
             medicine.startDate,
             medicine.endDate,
             medicine.notes
-          ]);
+          ], (err) => {
+            if (err) {
+              console.error('Error inserting sample medicine:', err);
+            }
+            inserted++;
+            if (inserted === total) {
+              console.log('Sample data inserted successfully');
+            }
+          });
         });
-
-        console.log('Sample data inserted successfully');
       }
     });
   }
